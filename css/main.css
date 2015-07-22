@@ -2,6 +2,19 @@
 
 /***VIZ***/
 
+#visualization {
+  position: absolute;
+  left: 0;
+  width: 80%;
+}
+
+#node-attrs {
+  position: absolute;
+  right: 0;
+  width: 18%;
+  border: 1px solid;
+}
+
 .viz {
   display: block;
   margin: -10px auto 0;

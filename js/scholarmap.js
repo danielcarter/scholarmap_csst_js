@@ -6,7 +6,8 @@ Viz.setup = function(container, data_people, data_references) {
   Viz.data_references = data_references;
 
   //add the right column
-  $(body).append('<div id="node-attrs"></div>');
+  $('body').append('<div id="node-attrs"></div>');
+  Viz.sidebar = $('#node-attrs');
 
   //set the graph type
   Viz.data_type = 'PeopleMap';
@@ -96,6 +97,8 @@ Viz.load_data = function(data_type) {
       Viz.theories = Viz.attributes.theories;
       Viz.venues = Viz.attributes.venues;
 
+      console.log(Viz.fields);
+
       Viz.originalNodes = data.nodes;
 
       Viz.groupedNodes = {
@@ -134,8 +137,6 @@ Viz.load_data = function(data_type) {
 
 
 Viz.load_viz = function() {
-
-    console.log(Viz.originalNodes);
 
     Viz.filteredLinks = generate_links(Viz.originalNodes, "objects");
 
@@ -220,6 +221,10 @@ Viz.load_viz = function() {
 
   }// load_viz
 
+Viz.clear_sidebar = function() {
+  Viz.sidebar.html('');
+}
+
 Viz.update = function() {
 
   //kill everything? ... yes, kill everything
@@ -275,7 +280,58 @@ Viz.update = function() {
 
 function mouseclick(d) {
 
-  console.log(d);
+  Viz.clear_sidebar();
+
+  for (key in d) {
+
+    console.log(key + " /// " + d[key].length);
+
+    if (key === 'name' || key === 'citation' || key === 'relative_url') {
+        continue;
+    }
+    if (key === 'index' || key === 'parent') {
+        break;
+    }
+
+    if (key === "department" || key === "authors" || key === "year") {
+      Viz.sidebar.append("<h4>" + (key[0].toUpperCase() + key.slice(1)) + "</h4>");     
+      Viz.sidebar.append("<p>" + d[key] + "</p>");
+    }
+
+    var attribute_holder = "";
+
+    if (key === 'fields' && d[key].length > 0) {
+      attribute_holder = Viz.fields;
+    } else if (key === 'methods' && d[key].length > 0) {
+      attribute_holder = Viz.methods;
+    } else if (key === 'theories' && d[key].length > 0) {
+      attribute_holder = Viz.theories;
+    } if (key === 'venues' && d[key].length > 0) {
+      attribute_holder = Viz.venues;
+    } 
+
+    if (attribute_holder) {
+      Viz.sidebar.append("<h4>" + (key[0].toUpperCase() + key.slice(1)) + "</h4>");
+      var tmp_fields = "";
+        for (var i = 0; i < d[key].length; i++) {
+          if (i > 0) {
+            var prefix = ", ";
+          } else {
+            var prefix =""
+          }
+          tmp_fields += prefix + attribute_holder[d[key][i]].name;
+        }
+        Viz.sidebar.append("<p>" + tmp_fields + "</p>");      
+    }
+  
+    
+
+
+
+    /*
+      \n<p>" + (typeof d[key] === 'object' ? d[key].join(', ') : d[key]) + "</p>");
+    */
+  }
 
 }//mouseclick
 
