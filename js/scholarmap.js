@@ -1,6 +1,6 @@
 var Viz = {}
 
-Viz.setup = function(container, diameter, data_people, data_references) {
+Viz.setup = function(container, data_people, data_references) {
 
   Viz.data_people = data_people;
   Viz.data_references = data_references;
@@ -8,7 +8,7 @@ Viz.setup = function(container, diameter, data_people, data_references) {
   //set the graph type
   Viz.data_type = 'PeopleMap';
 
-  Viz.diameter = diameter,
+  Viz.diameter = $(container).width(),
   Viz.radius = Viz.diameter / 2,
   Viz.innerRadius = Viz.radius - 280;
 
@@ -85,6 +85,13 @@ Viz.load_data = function(data_type) {
 
     //load people data
     d3.json(Viz.data_people, function(error, data) {
+
+      Viz.attributes = data.attributes;
+      Viz.fields = Viz.attributes.fields;
+      Viz.methods = Viz.attributes.methods;
+      Viz.references = Viz.attributes.references;
+      Viz.theories = Viz.attributes.theories;
+      Viz.venues = Viz.attributes.venues;
 
       Viz.originalNodes = data.nodes;
 
@@ -473,6 +480,6 @@ String.prototype.trunc = String.prototype.trunc ||
 
 $(document).ready(function() {
 
-  Viz.setup("#visualization", 1000, "data/people.json", "data/references.json");
+  Viz.setup("#visualization", "data/people.json", "data/references.json");
 
 });
