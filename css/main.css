@@ -1,18 +1,5 @@
 
 
-body {
-  font: 300 10px Tahoma;
-  color: #333;
-  padding: 0;
-  margin: 0;
-}
-
-h1, h2 {
-  font-size: 1em;
-  text-transform: uppercase;
-}
-
-
 /***VIZ***/
 
 .viz {

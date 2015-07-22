@@ -84,7 +84,7 @@ Viz.load_data = function(data_type) {
   if (Viz.data_type == "PeopleMap") {
 
     //load people data
-    d3.json(Viz.data_people, function(error, data) {
+    d3.json(Viz.data_people==null?"http://localhost:8080/ScholarMapClean/api/v1/people/graphs/force-directed":Viz.data_people, function(error, data) {
 
       Viz.attributes = data.attributes;
       Viz.fields = Viz.attributes.fields;
@@ -110,7 +110,7 @@ Viz.load_data = function(data_type) {
   else if (Viz.data_type == "ReferencesMap") {
 
     //load ref data
-    d3.json(Viz.data_references, function(error, data) {
+    d3.json(Viz.data_references==null?"http://localhost:8080/ScholarMapClean/api/v1/references/graphs/force-directed":Viz.data_references, function(error, data) {
 
       Viz.originalNodes = data.nodes;
 
