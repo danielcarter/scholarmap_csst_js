@@ -1,9 +1,12 @@
 var Viz = {}
 
-Viz.setup = function(diameter, data, controls) {
+Viz.setup = function(diameter, data_people, data_references) {
 
-  Viz.data = data;
-  Viz.cotrols = controls;
+  Viz.data_people = data_people;
+  Viz.data_references = data_references;
+
+  //set the graph type
+  Viz.data_type = 'PeopleMap';
 
   Viz.diameter = diameter,
   Viz.radius = Viz.diameter / 2,
@@ -44,8 +47,6 @@ Viz.setup = function(diameter, data, controls) {
   Viz.setup_similarity_types();
   Viz.setup_interactions();
   Viz.load_data();
-
-  Viz.link_map = [];
   
 } //setup
 
@@ -62,6 +63,11 @@ Viz.setup_interactions = function() {
     Viz.load_data();
   })
 
+  $('#map-types button').click(function() {
+    Viz.data_type = $(this).attr('data-map-type');
+    Viz.load_data();
+  })
+
 }//setup_interactions
 
 
@@ -73,27 +79,53 @@ Viz.setup_similarity_types = function() {
 
 
 
-Viz.load_data = function() {
+Viz.load_data = function(data_type) {
 
-  d3.json(Viz.data, function(error, data) {
+  if (Viz.data_type == "PeopleMap") {
 
-    Viz.originalNodes = data.nodes;
+    //load people data
+    d3.json(Viz.data_people, function(error, data) {
 
-    Viz.groupedNodes = {
-      name: "root",
-      display: false,
-      children: []
-    };
+      Viz.originalNodes = data.nodes;
 
-    Viz.load_viz();
+      Viz.groupedNodes = {
+        name: "root",
+        display: false,
+        children: []
+      };
 
-  })
+      Viz.load_viz();
+
+    })
+
+  }//if people
+
+  else if (Viz.data_type == "ReferencesMap") {
+
+    //load ref data
+    d3.json(Viz.data_references, function(error, data) {
+
+      Viz.originalNodes = data.nodes;
+
+      Viz.groupedNodes = {
+        name: "root",
+        display: false,
+        children: []
+      };
+
+      Viz.load_viz();
+
+    })
+
+  }//else refs
 
 } //load_data
 
 
 
 Viz.load_viz = function() {
+
+    console.log(Viz.originalNodes);
 
     Viz.filteredLinks = generate_links(Viz.originalNodes, "objects");
 
@@ -108,8 +140,6 @@ Viz.load_viz = function() {
 
     Viz.active_nodes = Viz.active_targets.concat(Viz.active_sources);
     Viz.active_nodes = arrayUnique(Viz.active_nodes);
-
-    console.log("Currently active nodes: " + Viz.active_nodes.length);  
 
     //Filter original nodes to only include those used in the filtered links
 
@@ -182,7 +212,7 @@ Viz.load_viz = function() {
 
 Viz.update = function() {
 
-  //kill everything?
+  //kill everything? ... yes, kill everything
   Viz.link = Viz.svg.selectAll(".link").remove();
   Viz.node = Viz.svg.selectAll(".node").remove();
 
@@ -218,7 +248,13 @@ Viz.update = function() {
       .attr("dy", ".31em")
       .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
       .style("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
-      .text(function(d) { return d.name; })
+      .text(function(d) { 
+        if (Viz.data_type == 'PeopleMap') {
+          return d.name.trunc(50);   
+        } else if (Viz.data_type == 'ReferencesMap') {
+          return d.citation.trunc(50);   
+        }
+      })
       .on("mouseover", mouseovered)
       .on("mouseout", mouseouted);
 
@@ -269,9 +305,6 @@ generate_links = function(nodes, return_type) {
     var active_types, links;
     louvain_communities_cache = void 0;
     active_types = active_similarity_types();
-
-    console.log("Active similarity types: ");
-    console.log(active_types);
 
     links = _.map(nodes, function(n, index) {
 
@@ -418,6 +451,11 @@ function filterByValue(obj) {
   */
 }
 
+String.prototype.trunc = String.prototype.trunc ||
+      function(n){
+          return this.length>n ? this.substr(0,n-1)+'...' : this;
+      };
+
 
 
 
@@ -428,6 +466,6 @@ function filterByValue(obj) {
 
 $(document).ready(function() {
 
-  Viz.setup(1000, "data/people.json");
+  Viz.setup(1000, "data/people.json", "data/references.json");
 
 });
