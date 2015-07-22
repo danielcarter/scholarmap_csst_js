@@ -478,8 +478,3 @@ String.prototype.trunc = String.prototype.trunc ||
 
 
 
-$(document).ready(function() {
-
-  Viz.setup("#visualization", "data/people.json", "data/references.json");
-
-});
