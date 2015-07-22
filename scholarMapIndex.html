@@ -1,0 +1,66 @@
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <form class="form-inline">
+
+                <div class="form-group">
+
+                    <select id="map-types" class="form-control">
+                        <option data-map-type="PeopleMap">People</option>
+                        <option data-map-type="ReferencesMap">References</option>
+                        <option data-map-type="CharacteristicsMap">Characteristics</option>
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+                    <span class="h3">Link by:</span>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" id="fieldsCb" value="option1"> Fields
+                    </label>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" id="methodsCb" value="option2"> Methods
+                    </label>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" id="theoriesCb" value="option3"> Theories
+                    </label>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" id="venuesCb" value="option3"> Venues
+                    </label>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" id="peopleCb" value="option3"> People
+                    </label>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" id="referencesCb" value="option3"> References
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <input id="node-search" type="text" class="form-control" placeholder="Search">
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div id="visualization">
+            </div>
+
+            <div class="loader"></div>
+        </div>
+
+
+        <div id="right-sidebar" class="col-lg-4">
+
+            <div class="scroll-area">
+                <h3 id="node-title"></h3>
+
+                <div id="node-attrs"></div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
