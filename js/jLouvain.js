@@ -41,7 +41,10 @@ Based on https://bitbucket.org/taynaud/python-louvain/overview
 			neighbours.forEach(function(neighbour,i){
 				var value = graph._assoc_mat[node][neighbour] || 1;
 				if(node == neighbour)
+					/* Original: 
 					value *= 2;
+					*/
+					value *= 4;
 				weight += value;
 			});
 			return weight;

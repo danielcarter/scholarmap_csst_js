@@ -33,56 +33,98 @@ Viz.setup = function(diameter, data, controls) {
 
   Viz.colors = ["#9C5100", "#ff0094", "#00aaad", "#8cbe29", "#e671b5", "#ef9608", "#19a2de", "#e61400", "#319a31", ];
 
+  Viz.color = d3.scale.category20();
+
   Viz.text_color = '#333333';
 
   Viz.link = Viz.svg.append("g").selectAll(".link"),
   Viz.node = Viz.svg.append("g").selectAll(".node");
 
   Viz.similarity_types = similarity_types();
-
-  Viz.load();
+  Viz.setup_similarity_types();
+  Viz.setup_interactions();
+  Viz.load_data();
 
   Viz.link_map = [];
   
 } //setup
 
-Viz.load = function() {
+
+Viz.setup_interactions = function() {
+
+  $('#similarity-types input').change(function() {
+    console.log("Updating...");
+
+    //If they uncheck all the boxes, check the first one...
+    if ($('#similarity-types input[type="checkbox"]:not(:checked)').length >= $('#similarity-types input[type="checkbox"]').length) {
+      $('#similarity-types input[type="checkbox"]:first').prop('checked',true);
+    }
+    Viz.load_data();
+  })
+
+}//setup_interactions
+
+
+Viz.setup_similarity_types = function() {
+  for (var i = 0; i < Viz.similarity_types.length; i++) {
+    $('#similarity-types').append('<input type="checkbox" checked="checked" value="' + Viz.similarity_types[i] + '">' + Viz.similarity_types[i] + '</checkbox>');
+  }//foreach similarity type
+}//setup_similarity_types
+
+
+
+Viz.load_data = function() {
+
   d3.json(Viz.data, function(error, data) {
 
     Viz.originalNodes = data.nodes;
+
     Viz.groupedNodes = {
       name: "root",
       display: false,
       children: []
     };
 
-    Viz.communityLinks = generate_links(Viz.originalNodes, "ids"); 
+    Viz.load_viz();
+
+  })
+
+} //load_data
+
+
+
+Viz.load_viz = function() {
 
     Viz.filteredLinks = generate_links(Viz.originalNodes, "objects");
 
-    console.log("Links: ");
-    console.log(Viz.filteredLinks);
+    //Make a list of all the nodes that are currently active...
+    Viz.active_sources = Viz.filteredLinks.map(function(n) {
+      return n.source.relative_url;
+    })
+
+    Viz.active_targets = Viz.filteredLinks.map(function(n) {
+      return n.target.relative_url;
+    })
+
+    Viz.active_nodes = Viz.active_targets.concat(Viz.active_sources);
+    Viz.active_nodes = arrayUnique(Viz.active_nodes);
+
+    console.log("Currently active nodes: " + Viz.active_nodes.length);  
+
+    //Filter original nodes to only include those used in the filtered links
+
+    Viz.originalNodes = Viz.originalNodes.filter(function(d) {
+      return Viz.active_nodes.indexOf(d.relative_url) > -1
+    })
+
+    Viz.communityLinks = generate_links(Viz.originalNodes, "ids"); 
 
     //make a list of node names to use in the community detection algorithm
-
-    Viz.node_names = [];
-
-    for (var key in Viz.originalNodes) {
-       if (Viz.originalNodes.hasOwnProperty(key)) {
-           var obj = Viz.originalNodes[key];
-            for (var prop in obj) {
-              // important check that this is objects own property 
-              // not from prototype prop inherited
-              if(obj.hasOwnProperty(prop) && prop == "relative_url"){
-                Viz.node_names.push(obj[prop]);
-              }
-           }
-        }
-    }
+    Viz.node_names = Viz.active_nodes;
 
     //generate communities
 
-    var community = jLouvain().nodes(Viz.node_names).edges(Viz.communityLinks);
+    var community = jLouvain().nodes(Viz.active_nodes).edges(Viz.communityLinks);
 
     Viz.community = community();
 
@@ -131,22 +173,21 @@ Viz.load = function() {
     });
 
     //Generate the clustered nodes
-    Viz.filteredNodes = Viz.cluster.nodes(Viz.groupedNodes);
-
-    console.log("Nodes: ");
-    console.log(Viz.filteredNodes);
+    Viz.clusteredNodes = Viz.cluster.nodes(Viz.groupedNodes);
 
     //Update the viz
     Viz.update();
 
-  })
-} // load
+  }// load_viz
 
 Viz.update = function() {
 
-  //try this later
-  //Viz.link = Viz.link
-      //.data(Viz.bundle(Viz.filteredLinks));
+  //kill everything?
+  Viz.link = Viz.svg.selectAll(".link").remove();
+  Viz.node = Viz.svg.selectAll(".node").remove();
+
+  Viz.link = Viz.svg.append("g").selectAll(".link"),
+  Viz.node = Viz.svg.append("g").selectAll(".node");
 
   Viz.link = Viz.link
       .data(Viz.bundle(Viz.filteredLinks));
@@ -163,14 +204,16 @@ Viz.update = function() {
 
   //Group nodes and root get display: false
   Viz.node = Viz.node
-      .data(Viz.filteredNodes.filter( function(n) { 
+      .data(Viz.clusteredNodes.filter( function(n) { 
         return n.display !== false; } 
-      ), function(d, i) { return d.relative_url; });
+      ));
+
+      //, function(d, i) { return d.relative_url; }
     
   Viz.node.enter().append("text")
       .attr("class", "node")
       .attr("fill", function(d) {
-        return Viz.colors[d.parent.name];
+        return Viz.color(d.parent.name);
       })
       .attr("dy", ".31em")
       .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
@@ -221,47 +264,18 @@ function mouseouted(d) {
       .classed("node--source", false);
 }
 
-d3.select(self.frameElement).style("height", Viz.diameter + "px");
-
-
-//Returns a list of links for the given nodes
-/*
-function createLinks(nodes) {
-
-  var map = {},
-      links = [];
-
-  // Compute a map from name to node.
-  nodes.forEach(function(d) {
-      map[d.relative_url] = d;
-  });
-
-  console.log("Creating links .... map: ");
-  console.log(map);
-
-  // For each import, construct a link from the source to target node.
-  nodes.forEach(function(d) {
-    if (d.imports && d.name != "root") d.imports.forEach(function(i) {
-      if (map[i] && map[i].name != "root") {
-        imports.push({source: map[d.name], target: map[i]});
-      }
-    });
-  });
-
-
-  return links;
-
-}//createLinks
-*/
-
-
-
 
 generate_links = function(nodes, return_type) {
     var active_types, links;
     louvain_communities_cache = void 0;
     active_types = active_similarity_types();
+
+    console.log("Active similarity types: ");
+    console.log(active_types);
+
     links = _.map(nodes, function(n, index) {
+
+        //Go through each node and all others to ook for links
         return _.slice(nodes, index + 1, nodes.length).map(function(other_node) {
             var any_links, j, len, node_attr_ids, other_node_attr_ids, similarities, similarity_type;
             similarities = {};
@@ -299,8 +313,6 @@ generate_links = function(nodes, return_type) {
                   return {
                       source: n,
                       target: other_node,
-                      //source: n.relative_url,
-                      //target: other_node.relative_url,
                       similarities: _.filter(_.map(active_types, function(similarity_type) {
                           return {
                               type: similarity_type,
@@ -312,8 +324,6 @@ generate_links = function(nodes, return_type) {
                   };
                 } else {
                   return {
-                      //source: n,
-                      //target: other_node,
                       source: n.relative_url,
                       target: other_node.relative_url,
                       similarities: _.filter(_.map(active_types, function(similarity_type) {
@@ -332,27 +342,32 @@ generate_links = function(nodes, return_type) {
         });
     });
     links = _.compact(_.flatten(links));
+
     return _.sortBy(links, function(link) {
         return -link_weight(link);
-    }).slice(0, +Math.floor(Viz.originalNodes.length * 3) + 1 || 9e9);
+    }).slice(0, +Math.floor(Viz.originalNodes.length * 6) + 1 || 9e9);
+
 };
 
-/*
 similarity_exclusions = function() {
-    console.log(typeof(Viz.similarity_types));
-    return Viz.similarity_types.find('input[type="checkbox"]:not(:checked)').map(function(type) {
-        return type.value;
+
+    var tmp_exclusions = [];
+
+    $('#similarity-types input[type="checkbox"]:not(:checked)').each(function(i) {
+      tmp_exclusions[i] = $(this).val();
     });
-};
-*/
+
+    return tmp_exclusions;
+
+};//similarity_exclusions
+
 
 active_similarity_types = function() {
-    return similarity_types();
-    /*
+
     return similarity_types().filter(function(type) {
         return similarity_exclusions().indexOf(type) < 0;
     });
-*/
+
 };
 
 similarity_types = function() {
