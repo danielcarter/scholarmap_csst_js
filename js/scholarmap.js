@@ -5,6 +5,9 @@ Viz.setup = function(container, data_people, data_references) {
   Viz.data_people = data_people;
   Viz.data_references = data_references;
 
+  //add the right column
+  $(body).append('<div id="node-attrs"></div>');
+
   //set the graph type
   Viz.data_type = 'PeopleMap';
 
@@ -464,6 +467,10 @@ function filterByValue(obj) {
   }
   */
 }
+
+
+
+
 
 String.prototype.trunc = String.prototype.trunc ||
       function(n){
