@@ -1,6 +1,6 @@
 var Viz = {}
 
-Viz.setup = function(diameter, data_people, data_references) {
+Viz.setup = function(container, diameter, data_people, data_references) {
 
   Viz.data_people = data_people;
   Viz.data_references = data_references;
@@ -25,7 +25,7 @@ Viz.setup = function(diameter, data_people, data_references) {
       .radius(function(d) { return d.y; })
       .angle(function(d) { return d.x / 180 * Math.PI; });
 
-  Viz.svg = d3.select("body").append("svg")
+  Viz.svg = d3.select(container).append("svg")
       .attr("class","viz")
       .attr("width", Viz.diameter)
       .attr("height", Viz.diameter)
@@ -255,12 +255,19 @@ Viz.update = function() {
           return d.citation.trunc(50);   
         }
       })
+      .on("click", mouseclick)
       .on("mouseover", mouseovered)
       .on("mouseout", mouseouted);
 
   Viz.node.exit().remove();
 
 } //update
+
+function mouseclick(d) {
+
+  console.log(d);
+
+}//mouseclick
 
 function mouseovered(d) {
 
@@ -466,6 +473,6 @@ String.prototype.trunc = String.prototype.trunc ||
 
 $(document).ready(function() {
 
-  Viz.setup(1000, "data/people.json", "data/references.json");
+  Viz.setup("#visualization", 1000, "data/people.json", "data/references.json");
 
 });
