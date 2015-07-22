@@ -1,20 +1,20 @@
 var Viz = {}
 
-Viz.setup = function(container, data_people, data_references) {
+Viz.setup = function(container, data_people, data_references, characteristics_references) {
 
   Viz.data_people = data_people;
   Viz.data_references = data_references;
+  Viz.characteristics_references = characteristics_references;
 
   //add the right column
-  $('body').append('<div id="node-attrs"></div>');
-  Viz.sidebar = $('#node-attrs');
+  Viz.sidebar = $('#right-sidebar');
 
   //set the graph type
   Viz.data_type = 'PeopleMap';
 
   Viz.diameter = $(container).width(),
   Viz.radius = Viz.diameter / 2,
-  Viz.innerRadius = Viz.radius - 280;
+  Viz.innerRadius = Viz.radius - 175;
 
   Viz.cluster = d3.layout.cluster()
       .size([360, Viz.innerRadius])
@@ -36,10 +36,6 @@ Viz.setup = function(container, data_people, data_references) {
     .append("g")
       .attr("transform", "translate(" + Viz.radius + "," + Viz.radius + ")");
 
-      //http://www.creepyed.com/2011/12/windows-phone-colors-in-rgb-hex-values/
-
-  Viz.colors = ["#9C5100", "#ff0094", "#00aaad", "#8cbe29", "#e671b5", "#ef9608", "#19a2de", "#e61400", "#319a31", ];
-
   Viz.color = d3.scale.category20();
 
   Viz.text_color = '#333333';
@@ -57,8 +53,17 @@ Viz.setup = function(container, data_people, data_references) {
 
 Viz.setup_interactions = function() {
 
+  $('#right-sidebar').on('click', '.expand', function() {
+    if ($(this).hasClass('collapse-toggle')) {
+      $(this).closest('div').find('.not-hidden').removeClass('not-hidden');
+        $(this).html('Expand').removeClass('collapse-toggle');
+    } else {
+      $(this).closest('div').find('.collapsed').addClass('not-hidden');
+      $(this).html('Collapse').addClass('collapse-toggle');
+    }
+  })//expand clicks
+
   $('#similarity-types input').change(function() {
-    console.log("Updating...");
 
     //If they uncheck all the boxes, check the first one...
     if ($('#similarity-types input[type="checkbox"]:not(:checked)').length >= $('#similarity-types input[type="checkbox"]').length) {
@@ -67,17 +72,20 @@ Viz.setup_interactions = function() {
     Viz.load_data();
   })
 
-  $('#map-types button').click(function() {
-    Viz.data_type = $(this).attr('data-map-type');
+  $('#map-types').change(function() {
+    Viz.clear_sidebar();
+    Viz.data_type = $('#map-types option:selected').attr('data-map-type');
+    $('#right-sidebar .attribute_holder').hide();
+    $('#right-sidebar .' + Viz.data_type).show();
     Viz.load_data();
-  })
+  });
 
 }//setup_interactions
 
 
 Viz.setup_similarity_types = function() {
   for (var i = 0; i < Viz.similarity_types.length; i++) {
-    $('#similarity-types').append('<input type="checkbox" checked="checked" value="' + Viz.similarity_types[i] + '">' + Viz.similarity_types[i] + '</checkbox>');
+    $('#similarity-types input').each(function() { $(this).prop('checked', true)});
   }//foreach similarity type
 }//setup_similarity_types
 
@@ -96,8 +104,6 @@ Viz.load_data = function(data_type) {
       Viz.references = Viz.attributes.references;
       Viz.theories = Viz.attributes.theories;
       Viz.venues = Viz.attributes.venues;
-
-      console.log(Viz.fields);
 
       Viz.originalNodes = data.nodes;
 
@@ -118,6 +124,43 @@ Viz.load_data = function(data_type) {
     //load ref data
     d3.json(Viz.data_references==null?"http://localhost:8080/ScholarMapClean/api/v1/references/graphs/force-directed":Viz.data_references, function(error, data) {
 
+      Viz.attributes = data.attributes;
+      Viz.fields = Viz.attributes.fields;
+      Viz.methods = Viz.attributes.methods;
+      Viz.references = Viz.attributes.references;
+      Viz.theories = Viz.attributes.theories;
+      Viz.venues = Viz.attributes.venues;
+
+      Viz.originalNodes = data.nodes;
+
+      Viz.groupedNodes = {
+        name: "root",
+        display: false,
+        children: []
+      };
+
+      console.log(Viz.originalNodes);
+
+      Viz.load_viz();
+
+    })
+
+  }//else refs
+
+  else if (Viz.data_type == "CharacteristicsMap") {
+
+    //load ref data
+    d3.json(Viz.data_references==null?"http://localhost:8080/ScholarMapClean/api/v1/references/graphs/force-directed":Viz.characteristics_references, function(error, data) {
+
+      Viz.attributes = data.attributes;
+      Viz.fields = Viz.attributes.fields;
+      Viz.methods = Viz.attributes.methods;
+      Viz.references = Viz.attributes.references;
+      Viz.theories = Viz.attributes.theories;
+      Viz.venues = Viz.attributes.venues;
+      Viz.people = Viz.attributes.people;
+
+
       Viz.originalNodes = data.nodes;
 
       Viz.groupedNodes = {
@@ -131,6 +174,7 @@ Viz.load_data = function(data_type) {
     })
 
   }//else refs
+
 
 } //load_data
 
@@ -222,7 +266,7 @@ Viz.load_viz = function() {
   }// load_viz
 
 Viz.clear_sidebar = function() {
-  Viz.sidebar.html('');
+  Viz.sidebar.find('p').remove();
 }
 
 Viz.update = function() {
@@ -253,6 +297,8 @@ Viz.update = function() {
         return n.display !== false; } 
       ));
 
+      //This is the optional function that you add to the data function to bind the data by a custom attribute ... which is what you need to do to animate things....
+
       //, function(d, i) { return d.relative_url; }
     
   Viz.node.enter().append("text")
@@ -264,10 +310,10 @@ Viz.update = function() {
       .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
       .style("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
       .text(function(d) { 
-        if (Viz.data_type == 'PeopleMap') {
+        if (Viz.data_type == 'PeopleMap' || Viz.data_type == 'CharacteristicsMap') {
           return d.name.trunc(50);   
         } else if (Viz.data_type == 'ReferencesMap') {
-          return d.citation.trunc(50);   
+          return d.citationShort.trunc(50);   
         }
       })
       .on("click", mouseclick)
@@ -284,18 +330,30 @@ function mouseclick(d) {
 
   for (key in d) {
 
-    console.log(key + " /// " + d[key].length);
-
-    if (key === 'name' || key === 'citation' || key === 'relative_url') {
-        continue;
-    }
-    if (key === 'index' || key === 'parent') {
-        break;
+   if (key === "department" || key === "authors" || key === "year" || key === "name") {
+      if (d[key] != "") {
+         Viz.sidebar.find('.' + key).append("<p><a class='node-attribute'>" + d[key] + "</a></p>");
+      }
     }
 
-    if (key === "department" || key === "authors" || key === "year") {
-      Viz.sidebar.append("<h4>" + (key[0].toUpperCase() + key.slice(1)) + "</h4>");     
-      Viz.sidebar.append("<p>" + d[key] + "</p>");
+
+    if (key === "references" && d[key].length > 0) {
+
+      console.log(Viz.references);
+
+      attribute_holder = Viz.references;
+      var tmp_fields = "";
+      var hide = "";
+      for (var i = 0; i < d[key].length; i++) {
+        if (i > 4) {
+          var hide = " collapsed";
+        }
+        tmp_fields += "<a class='node-attribute" + hide + "'>" + attribute_holder[d[key][i].id].name + "</a>";
+      }
+      Viz.sidebar.find('.' + key).append("<p>" + tmp_fields + "</p>");
+      if (hide != "") {
+        Viz.sidebar.find('.' + key + ' p').append('<a class="node-attribute expand">Expand</a>');        
+      }
     }
 
     var attribute_holder = "";
@@ -306,23 +364,26 @@ function mouseclick(d) {
       attribute_holder = Viz.methods;
     } else if (key === 'theories' && d[key].length > 0) {
       attribute_holder = Viz.theories;
-    } if (key === 'venues' && d[key].length > 0) {
+    } else if (key === 'venues' && d[key].length > 0) {
       attribute_holder = Viz.venues;
-    } 
+    } else if (key === 'people' && d[key].length > 0) {
+      attribute_holder = Viz.people;
+    }
 
     if (attribute_holder) {
-      Viz.sidebar.append("<h4>" + (key[0].toUpperCase() + key.slice(1)) + "</h4>");
       var tmp_fields = "";
-        for (var i = 0; i < d[key].length; i++) {
-          if (i > 0) {
-            var prefix = ", ";
-          } else {
-            var prefix =""
-          }
-          tmp_fields += prefix + attribute_holder[d[key][i]].name;
+      var hide = "";
+      for (var i = 0; i < d[key].length; i++) {
+        if (i > 4) {
+          var hide = " collapsed";
         }
-        Viz.sidebar.append("<p>" + tmp_fields + "</p>");      
-    }
+        tmp_fields += "<a class='node-attribute" + hide + "'>" + attribute_holder[d[key][i]].name + "</a>";
+      }
+      Viz.sidebar.find('.' + key).append("<p>" + tmp_fields + "</p>");
+      if (hide != "") {
+        Viz.sidebar.find('.' + key + ' p').append('<a class="node-attribute expand">Expand</a>');       
+      }
+    }//if adding a list
   
     
 
@@ -354,7 +415,7 @@ function mouseovered(d) {
           }             
         }
       }
-    })
+    });
 
 
   Viz.node

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <head>
-  <link rel="stylesheet" href="css/main.css" />
 </head>
 <body>
 
@@ -13,6 +12,8 @@
 	        
 	        <button type="button" class="btn btn-default" data-map-type="ReferencesMap">References</button>
 
+	        <button type="button" class="btn btn-default" data-map-type="CharacteristicsMap">Characteristics</button>
+
 	</div>	
 
 	<input type="text" id="nodesearch" />
@@ -22,19 +23,21 @@
 
 	<div id="visualization"></div>
 
-  
+   <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/bootstrap.css" />
+ 
   <script src="js/jLouvain.js"></script>
   <script src="js/lodash.js"></script>
   <script src="js/d3.min.js"></script>
   <script src="js/jquery-1.11.3.min.js"></script>
   <script src="js/scholarmap.js"></script>
-        <script type="text/javascript">
-            $(document).ready(function() {
+	<script type="text/javascript">
+	    $(document).ready(function() {
 
-                Viz.setup("#visualization", "data/people.json", "data/references.json");
+	        Viz.setup("#visualization", "data/people.json", "data/references.json", "data/characteristics.json");
 
-            });
-        </script>
+	    });
+	</script>
 
 </body>
 </html>

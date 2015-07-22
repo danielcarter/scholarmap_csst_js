@@ -1,3 +1,23 @@
+
+
+   <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/bootstrap.css" />
+ 
+  <script src="js/jLouvain.js"></script>
+  <script src="js/lodash.js"></script>
+  <script src="js/d3.min.js"></script>
+  <script src="js/jquery-1.11.3.min.js"></script>
+  <script src="js/scholarmap.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            Viz.setup("#visualization", "data/people.json", "data/references.json", "data/characteristics.json");
+
+        });
+    </script>
+
+
+
 <div class="container">
     <div class="row">
         <div class="col-lg-12">
@@ -13,26 +33,26 @@
 
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" id="similarity-types">
                     <span class="h3">Link by:</span>
                     <label class="checkbox-inline">
-                        <input type="checkbox" id="fieldsCb" value="option1"> Fields
+                        <input type="checkbox" id="fieldsCb" value="fields"> Fields
                     </label>
                     <label class="checkbox-inline">
-                        <input type="checkbox" id="methodsCb" value="option2"> Methods
+                        <input type="checkbox" id="methodsCb" value="methods"> Methods
                     </label>
                     <label class="checkbox-inline">
-                        <input type="checkbox" id="theoriesCb" value="option3"> Theories
+                        <input type="checkbox" id="theoriesCb" value="theories"> Theories
                     </label>
                     <label class="checkbox-inline">
-                        <input type="checkbox" id="venuesCb" value="option3"> Venues
+                        <input type="checkbox" id="venuesCb" value="venues"> Venues
                     </label>
                     <label class="checkbox-inline">
-                        <input type="checkbox" id="peopleCb" value="option3"> People
+                        <input type="checkbox" id="peopleCb" value="people"> People
                     </label>
-                    <label class="checkbox-inline">
-                        <input type="checkbox" id="referencesCb" value="option3"> References
-                    </label>
+                    <!--<label class="checkbox-inline">
+                        <input type="checkbox" id="referencesCb" value="references"> References
+                    </label>-->
                 </div>
 
                 <div class="form-group">
@@ -55,10 +75,64 @@
         <div id="right-sidebar" class="col-lg-4">
 
             <div class="scroll-area">
-                <h3 id="node-title"></h3>
+                
+                <div class="attribute_holder peopleMap">
+                    <div class="name">
+                        <h4>Name</h4>
+                    </div>
+                    <div class="department">
+                        <h4>Department</h4>
+                    </div>
+                    <div class="fields">
+                        <h4>Fields</h4>
+                    </div>
+                    <div class="methods">
+                        <h4>Methods</h4>
+                    </div>
+                    <div class="theories">
+                        <h4>Theories</h4>
+                    </div>
+                    <div class="venues">
+                        <h4>Venues</h4>
+                    </div>
+                </div>
 
-                <div id="node-attrs"></div>
-            </div>
+                <div class="attribute_holder referencesMap">
+                    <div class="authors">
+                        <h4>Authors</h4>
+                    </div>
+                    <div class="year">
+                        <h4>Year</h4>
+                    </div>
+                    <div class="fields">
+                        <h4>Fields</h4>
+                    </div>
+                    <div class="methods">
+                        <h4>Methods</h4>
+                    </div>
+                    <div class="theories">
+                        <h4>Theories</h4>
+                    </div>
+                    <div class="venues">
+                        <h4>Venues</h4>
+                    </div>
+                </div>
+
+                <div class="attribute_holder characteristicsMap">
+                    <div class="name">
+                        <h4>Name</h4>
+                    </div>
+                    <div class="people">
+                        <h4>People</h4>
+                    </div>
+                    <div class="references">
+                        <h4>References</h4>
+                    </div>
+
+                </div>
+
+            </div>   
+            </div><!-- #right-sidebar-->
 
         </div>
 

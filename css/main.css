@@ -1,24 +1,94 @@
 
 
+/***SIDEBAR***/
+#right-sidebar {
+  border-left: 1px solid #ededed;
+  margin-top: 100px;
+  font-size: .9em;
+}
+
+.referencesMap, .characteristicsMap {
+  display: none;
+}
+
+#right-sidebar .attribute_holder div {
+  border-bottom: 1px solid #ededed;
+  margin: 0 10px 0;
+}
+
+.node-attribute {
+    display: inline-block;
+    padding: 3px 6px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    border-radius: 2px;
+    color: #fff;
+    background-color: #333;
+    text-decoration: none;
+}
+
+.node-attribute:hover {
+  cursor: pointer;
+  text-decoration: none;
+  color: #ededed;
+}
+
+.node-attribute.collapsed {
+  display: none;
+}
+
+.node-attribute.collapsed.not-hidden {
+  display: inline-block;
+}
+
+.attribute_holder .name .node-attribute, .attribute_holder .authors .node-attribute {
+  background-color: #2ca02c;
+}
+
+.attribute_holder .department .node-attribute {
+  background-color: #1f77b4;
+}
+
+.attribute_holder .fields .node-attribute {
+  background-color: #aec7e8;
+}
+
+.attribute_holder .methods .node-attribute {
+  background-color: #ff7f0e;
+}
+
+.attribute_holder .venues .node-attribute {
+  background-color: #ffbb78;
+}
+
+.attribute_holder .theories .node-attribute {
+  background-color: #d62728;
+}
+
+.attribute_holder .year .node-attribute {
+  background-color: #9467bd;
+}
+
+.attribute_holder .people .node-attribute {
+  background-color: #17becf;
+}
+
+.attribute_holder .references .node-attribute {
+  background-color: #e377c2;
+}
+
+.attribute_holder .expand {
+  background-color: #333 !important;
+}
+
+
+
+
+
+.node-attribute.expand {
+}
+
 /***VIZ***/
-
-#visualization {
-  position: absolute;
-  left: 0;
-  width: 80%;
-}
-
-#node-attrs {
-  position: absolute;
-  right: 0;
-  width: 18%;
-  border: 1px solid;
-}
-
-.viz {
-  display: block;
-  margin: -10px auto 0;
-}
 
 .node {
   font: 300 9px Tahoma;
