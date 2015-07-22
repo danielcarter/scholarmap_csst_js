@@ -1,0 +1,52 @@
+
+
+body {
+  font: 300 10px Tahoma;
+  color: #333;
+  padding: 0;
+  margin: 0;
+}
+
+h1, h2 {
+  font-size: 1em;
+  text-transform: uppercase;
+}
+
+
+/***VIZ***/
+
+.viz {
+  display: block;
+  margin: -10px auto 0;
+}
+
+.node {
+  font: 300 9px Tahoma;
+}
+
+.link {
+  stroke: #999;
+  stroke-opacity: .4;
+  fill: none;
+  pointer-events: none;
+}
+
+.node:hover,
+.node--source,
+.node--target {
+  font-weight: 700;
+}
+
+.link--source,
+.link--target {
+  stroke-opacity: 1;
+  stroke-width: 1px;
+}
+
+.link--source {
+  stroke: #111;
+}
+
+.link--target {
+  stroke: #111;
+}
