@@ -33,7 +33,7 @@ Viz.setup = function(container, data_people, data_references, characteristics_re
       .radius(function(d) { return d.y; })
       .angle(function(d) { return d.x / 180 * Math.PI; });
 
-  $(container).append('<div id="viz-loading"></div>');
+  $(container).append('<div id="viz-loading"><span class="loading"></span></div>');
 
   Viz.svg = d3.select(container).append("svg")
       .attr("class","viz")
