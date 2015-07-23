@@ -199,9 +199,6 @@ Viz.load_viz = function() {
 
     Viz.filteredLinks = generate_links(Viz.originalNodes, "objects");
 
-    console.log("Filtered Links: ");
-    console.log(Viz.filteredLinks);
-
     //Make a list of all the nodes that are currently active...
     Viz.active_sources = Viz.filteredLinks.map(function(n) {
       return n.source.relative_url;
@@ -226,8 +223,6 @@ Viz.load_viz = function() {
     Viz.node_names = Viz.active_nodes;
 
     //generate communities
-
-    console.log(Viz.active_nodes);
 
     var community = jLouvain().nodes(Viz.active_nodes).edges(Viz.communityLinks);
 
@@ -290,8 +285,6 @@ Viz.clear_sidebar = function() {
 
 Viz.update = function() {
 
-  console.log("Updating...");
-
   //kill everything? ... yes, kill everything
   Viz.link = Viz.svg.selectAll(".link").remove();
   Viz.node = Viz.svg.selectAll(".node").remove();
@@ -349,14 +342,23 @@ function mouseclick(d) {
 
   Viz.clear_sidebar();
 
+  var main_link = d.relative_url;
+
+  console.log(d);
+
   for (key in d) {
 
-   if (key === "department" || key === "authors" || key === "year" || key === "name") {
+   if (key === "name") {
+      if (d[key] != "") {
+         Viz.sidebar.find('.' + key).append("<p><a class='node-attribute' href='" + main_link + "'>" + d[key] + "</a></p>");
+      }
+    }
+
+   if (key === "department" || key === "authors" || key === "year") {
       if (d[key] != "") {
          Viz.sidebar.find('.' + key).append("<p><a class='node-attribute'>" + d[key] + "</a></p>");
       }
     }
-
 
     if (key === "references" && d[key].length > 0) {
 
@@ -369,7 +371,7 @@ function mouseclick(d) {
         }
 
         //Hopefully this turns into something other than undefined once the json file gets updated. 
-        tmp_fields += "<a class='node-attribute" + hide + "'>" + attribute_holder[d[key][i].id].citationShort + "</a>";
+        tmp_fields += "<a class='node-attribute" + hide + "' href='" + attribute_holder[d[key][i].id].relative_url + "'>" + attribute_holder[d[key][i].id].citationShort + "</a>";
       }
       Viz.sidebar.find('.' + key).append("<p>" + tmp_fields + "</p>");
       if (hide != "") {
@@ -398,7 +400,7 @@ function mouseclick(d) {
         if (i > 4) {
           var hide = " collapsed";
         }
-        tmp_fields += "<a class='node-attribute" + hide + "'>" + attribute_holder[d[key][i]].name + "</a>";
+        tmp_fields += "<a class='node-attribute" + hide + "' href='" + attribute_holder[d[key][i]].relative_url + "'>" + attribute_holder[d[key][i]].name + "</a>";
       }
       Viz.sidebar.find('.' + key).append("<p>" + tmp_fields + "</p>");
       if (hide != "") {
@@ -460,8 +462,6 @@ generate_links = function(nodes, return_type) {
     var active_types, links;
     louvain_communities_cache = void 0;
     active_types = active_similarity_types();
-
-    console.log(active_types);
 
     links = _.map(nodes, function(n, index) {
 
