@@ -77,7 +77,7 @@ Viz.setup_interactions = function() {
     if ($('#similarity-types input[type="checkbox"]:not(:checked)').length >= $('#similarity-types input[type="checkbox"]:visible').length) {
       $('#similarity-types input[type="checkbox"]:first').prop('checked',true);
     }
-    Viz.load_viz();
+    Viz.load_data();
   })
 
   $('#map-types').change(function() {
