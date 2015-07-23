@@ -77,6 +77,14 @@
   min-height: 80px;
 }
 
+.attribute_holder .name_holder {
+  min-height: 0;
+}
+
+.attribute_holder .name_holder h4 {
+  padding-bottom: 1em;
+}
+
 .attribute_holder .name .node-attribute, .attribute_holder .authors .node-attribute {
   background-color: #2ca02c;
 }

@@ -302,6 +302,7 @@ Viz.load_viz = function() {
 
 Viz.clear_sidebar = function() {
   Viz.sidebar.find('p').remove();
+  Viz.sidebar.find('.name_holder h4').remove();
 }
 
 Viz.update = function() {
@@ -366,12 +367,12 @@ Viz.mouseclick = function(d) {
   Viz.clear_sidebar();
 
   var main_link = d.relative_url;
-
-  console.log(d);
+  var people_name;
+  var people_position;
+  var people_institution;
+  var people_string = ""
 
   for (key in d) {
-
-    console.log(key);
 
    if (key === "citation") {
       if (d[key] != "") {
@@ -379,10 +380,29 @@ Viz.mouseclick = function(d) {
       }
     }
 
-   if (key === "name") {
+    //name for characteristics
+   if (key === "name" && !_.has(d, 'institution')) {
       if (d[key] != "") {
          Viz.sidebar.find('.' + key).append("<p><a class='node-attribute' href='" + main_link + "'>" + d[key] + "</a></p>");
       }
+    } 
+    //name for people
+    else if (key === "name" && _.has(d, 'institution')) {
+      if (d[key] != "") {
+        people_name = d[key];
+      }
+    }
+
+    if (key === "institution") {
+      if (d[key] != "") {
+        people_institution = d[key];
+      }      
+    }
+
+    if (key === "position") {
+      if (d[key] != "") {
+        people_position = d[key];
+      }      
     }
 
    if (key === "department" || key === "authors" || key === "year") {
@@ -438,15 +458,25 @@ Viz.mouseclick = function(d) {
         Viz.sidebar.find('.' + key + ' p').append('<a class="node-attribute expand">Expand</a>');       
       }
     }//if adding a list
-  
-    
-
-
-
-    /*
-      \n<p>" + (typeof d[key] === 'object' ? d[key].join(', ') : d[key]) + "</p>");
-    */
   }
+
+    if (people_name || people_position || people_institution) {
+      people_string = "<h4>";
+      if (people_name) {
+        people_string += people_name + "<br />";
+      }
+      if (people_position) {
+        people_string += people_position;
+      }
+      if (people_institution) {
+        if (people_position) {
+          people_string += ", ";
+        }
+        people_string += people_institution;
+      }
+      people_string += "</h4>"
+      Viz.sidebar.find('.name_holder').append(people_string);
+    }
 
 }//mouseclick
 
