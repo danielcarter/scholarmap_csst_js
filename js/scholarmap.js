@@ -57,6 +57,10 @@ Viz.setup = function(container, data_people, data_references, characteristics_re
 
 Viz.setup_interactions = function() {
 
+  $('#node-search').change(function() {
+
+  })
+
   $('#right-sidebar').on('click', '.expand', function() {
     if ($(this).hasClass('collapse-toggle')) {
       $(this).closest('div').find('.not-hidden').removeClass('not-hidden');
@@ -73,7 +77,7 @@ Viz.setup_interactions = function() {
     if ($('#similarity-types input[type="checkbox"]:not(:checked)').length >= $('#similarity-types input[type="checkbox"]:visible').length) {
       $('#similarity-types input[type="checkbox"]:first').prop('checked',true);
     }
-    Viz.load_data();
+    Viz.load_viz();
   })
 
   $('#map-types').change(function() {
