@@ -454,6 +454,20 @@ function mouseovered(d) {
       }
     });
 
+    Viz.svg.selectAll("path").sort(function (a, b) { 
+      var active = false;
+      for (var i = 0; i < a.length; i++) {
+        if (a[i].relative_url == d.relative_url) {
+          active = true;
+          break;
+        }
+      }
+      if (!active) { return -1; }
+      else { return 1; }
+      //if (a.id != d.id) return -1;               // a is not the hovered element, send "a" to the back
+      //else return 1;                             // a is the hovered element, bring "a" to the front
+    });
+
 
   Viz.node
       .classed("node--target", function(n) { return n.target; })
