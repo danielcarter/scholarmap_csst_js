@@ -36,7 +36,7 @@ Viz.setup = function(container, data_people, data_references, data_characteristi
       .attr("width", Viz.diameter)
       .attr("height", Viz.diameter)
     .append("g")
-      .attr("transform", "translate(" + Viz.radius + "," + Viz.radius + ")");
+      .attr("transform", "translate(" + Viz.radius + "," + (Viz.radius - 50) + ")");
 
   Viz.color = d3.scale.category20();
 
