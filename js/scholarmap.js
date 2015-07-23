@@ -10,7 +10,8 @@ Viz.setup = function(container, data_people, data_references, data_characteristi
   Viz.data_characteristics = data_characteristics;
 
   //set the graph type
-  Viz.data_type = 'PeopleMap';
+  //Viz.data_type = 'PeopleMap';
+  Viz.data_type = $('#map-types option:selected').attr('data-map-type');
 
   Viz.diameter = $(container).width(),
   Viz.radius = Viz.diameter / 2,
