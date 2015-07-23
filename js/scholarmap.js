@@ -4,7 +4,7 @@ Viz.setup = function(container, data_people, data_references, characteristics_re
 
   Viz.data_people = data_people;
   Viz.data_references = data_references;
-  Viz.characteristics_references = characteristics_references;
+  Viz.data_characteristics = characteristics_references;
 
   //add the right column
   Viz.sidebar = $('#right-sidebar');
@@ -77,7 +77,9 @@ Viz.setup_interactions = function() {
     if ($('#similarity-types input[type="checkbox"]:not(:checked)').length >= $('#similarity-types input[type="checkbox"]:visible').length) {
       $('#similarity-types input[type="checkbox"]:first').prop('checked',true);
     }
+
     Viz.load_data();
+  
   })
 
   $('#map-types').change(function() {
@@ -167,7 +169,7 @@ Viz.load_data = function(data_type) {
   else if (Viz.data_type == "CharacteristicsMap") {
 
     //load ref data
-    d3.json(Viz.data_references==null?"http://localhost:8080/ScholarMapClean/api/v1/references/graphs/force-directed":Viz.characteristics_references, function(error, data) {
+    d3.json(Viz.data_references==null?"http://localhost:8080/ScholarMapClean/api/v1/characteristics/graphs/force-directed":Viz.data_characteristics, function(error, data) {
 
       Viz.attributes = data.attributes;
       Viz.fields = Viz.attributes.fields;
@@ -217,7 +219,7 @@ Viz.load_viz = function() {
 
     //Filter original nodes to only include those used in the filtered links
 
-    Viz.originalNodes = Viz.originalNodes.filter(function(d) {
+    Viz.filteredNodes = Viz.originalNodes.filter(function(d) {
       return Viz.active_nodes.indexOf(d.relative_url) > -1
     })
 
