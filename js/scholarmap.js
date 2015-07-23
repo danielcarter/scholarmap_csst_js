@@ -218,7 +218,7 @@ Viz.load_viz = function() {
 
     console.log("loading viz");
 
-    Viz.filteredLinks = generate_links(Viz.originalNodes, "objects");
+    Viz.filteredLinks = Viz.generate_links(Viz.originalNodes, "objects");
 
     //Make a list of all the nodes that are currently active...
     Viz.active_sources = Viz.filteredLinks.map(function(n) {
@@ -238,7 +238,7 @@ Viz.load_viz = function() {
       return Viz.active_nodes.indexOf(d.relative_url) > -1
     })
 
-    Viz.communityLinks = generate_links(Viz.originalNodes, "ids"); 
+    Viz.communityLinks = Viz.generate_links(Viz.originalNodes, "ids"); 
 
     //make a list of node names to use in the community detection algorithm
     Viz.node_names = Viz.active_nodes;
@@ -463,7 +463,10 @@ Viz.mouseclick = function(d) {
     if (people_name || people_position || people_institution) {
       people_string = "<h4>";
       if (people_name) {
-        people_string += people_name + "<br />";
+        people_string += people_name;
+      }
+      if (people_position || people_institution) {
+        people_string += "<br /><span>"
       }
       if (people_position) {
         people_string += people_position;
@@ -473,6 +476,9 @@ Viz.mouseclick = function(d) {
           people_string += ", ";
         }
         people_string += people_institution;
+      }
+      if (people_position || people_institution) {
+        people_string += "</span>"
       }
       people_string += "</h4>"
       Viz.sidebar.find('.name_holder').append(people_string);
@@ -531,7 +537,7 @@ Viz.mouseouted = function(d) {
 }
 
 
-generate_links = function(nodes, return_type) {
+Viz.generate_links = function(nodes, return_type) {
     var active_types, links;
     louvain_communities_cache = void 0;
     active_types = active_similarity_types();
