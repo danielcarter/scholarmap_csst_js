@@ -139,8 +139,6 @@ Viz.load_data = function(data_type) {
         children: []
       };
 
-      console.log(Viz.originalNodes);
-
       Viz.load_viz();
 
     })
@@ -271,6 +269,8 @@ Viz.clear_sidebar = function() {
 
 Viz.update = function() {
 
+  console.log("Updating...");
+
   //kill everything? ... yes, kill everything
   Viz.link = Viz.svg.selectAll(".link").remove();
   Viz.node = Viz.svg.selectAll(".node").remove();
@@ -339,8 +339,6 @@ function mouseclick(d) {
 
     if (key === "references" && d[key].length > 0) {
 
-      console.log(Viz.references);
-
       attribute_holder = Viz.references;
       var tmp_fields = "";
       var hide = "";
@@ -348,7 +346,10 @@ function mouseclick(d) {
         if (i > 4) {
           var hide = " collapsed";
         }
-        tmp_fields += "<a class='node-attribute" + hide + "'>" + attribute_holder[d[key][i].id].name + "</a>";
+
+        console.log(attribute_holder[d[key][i].id]);
+
+        tmp_fields += "<a class='node-attribute" + hide + "'>" + attribute_holder[d[key][i].id].citationShort + "</a>";
       }
       Viz.sidebar.find('.' + key).append("<p>" + tmp_fields + "</p>");
       if (hide != "") {
@@ -439,6 +440,8 @@ generate_links = function(nodes, return_type) {
     var active_types, links;
     louvain_communities_cache = void 0;
     active_types = active_similarity_types();
+
+    console.log(active_types);
 
     links = _.map(nodes, function(n, index) {
 
