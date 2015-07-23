@@ -1,17 +1,13 @@
 var Viz = {}
 
-Viz.setup = function(container, data_people, data_references, characteristics_references) {
+Viz.setup = function(container, data_people, data_references, data_characteristics) {
+
+  //get the page ready
+  Viz.setup_elements(container);
 
   Viz.data_people = data_people;
   Viz.data_references = data_references;
-  Viz.data_characteristics = characteristics_references;
-
-  //add the right column
-  Viz.sidebar = $('#right-sidebar');
-
-  //hide the checkboxes for the characteristics set
-  $('#similarity-types .references').hide();
-  $('#similarity-types .people').hide();
+  Viz.data_characteristics = data_characteristics;
 
   //set the graph type
   Viz.data_type = 'PeopleMap';
@@ -33,7 +29,6 @@ Viz.setup = function(container, data_people, data_references, characteristics_re
       .radius(function(d) { return d.y; })
       .angle(function(d) { return d.x / 180 * Math.PI; });
 
-  $(container).append('<div id="viz-loading"><span class="loading"></span></div>');
 
   Viz.svg = d3.select(container).append("svg")
       .attr("class","viz")
@@ -55,6 +50,19 @@ Viz.setup = function(container, data_people, data_references, characteristics_re
   Viz.load_data();
   
 } //setup
+
+Viz.setup_elements = function(container) {
+
+  Viz.container = container;
+  Viz.sidebar = $('#right-sidebar');
+
+  //hide the checkboxes for the characteristics set
+  $('#similarity-types .references').hide();
+  $('#similarity-types .people').hide();
+
+  $(Viz.container).append('<div id="viz-loading"><span class="loading"></span></div>');
+
+}//setup_elements
 
 
 Viz.setup_interactions = function() {
@@ -90,7 +98,8 @@ Viz.setup_interactions = function() {
     
     $('#viz-loading').show();
     
-    Viz.clear_sidebar();
+    Viz.clear_sidebar(); // removes all <p>s
+
     Viz.data_type = $('#map-types option:selected').attr('data-map-type');
 
     if (Viz.data_type == 'CharacteristicsMap') {
@@ -344,15 +353,15 @@ Viz.update = function() {
           return d.citationShort.trunc(50);   
         }
       })
-      .on("click", mouseclick)
-      .on("mouseover", mouseovered)
-      .on("mouseout", mouseouted);
+      .on("click", Viz.mouseclick)
+      .on("mouseover", Viz.mouseovered)
+      .on("mouseout", Viz.mouseouted);
 
   Viz.node.exit().remove();
 
 } //update
 
-function mouseclick(d) {
+Viz.mouseclick = function(d) {
 
   Viz.clear_sidebar();
 
@@ -361,6 +370,14 @@ function mouseclick(d) {
   console.log(d);
 
   for (key in d) {
+
+    console.log(key);
+
+   if (key === "citation") {
+      if (d[key] != "") {
+         Viz.sidebar.find('.' + key).append("<p><a class='node-attribute' href='" + main_link + "'>" + d[key] + "</a></p>");
+      }
+    }
 
    if (key === "name") {
       if (d[key] != "") {
@@ -433,7 +450,7 @@ function mouseclick(d) {
 
 }//mouseclick
 
-function mouseovered(d) {
+Viz.mouseovered = function(d) {
 
   Viz.node.each(
     function(n) { n.target = n.source = false; }
@@ -464,18 +481,16 @@ function mouseovered(d) {
       }
       if (!active) { return -1; }
       else { return 1; }
-      //if (a.id != d.id) return -1;               // a is not the hovered element, send "a" to the back
-      //else return 1;                             // a is the hovered element, bring "a" to the front
     });
 
 
-  Viz.node
-      .classed("node--target", function(n) { return n.target; })
-      .classed("node--source", function(n) { return n.source; });
+    Viz.node
+        .classed("node--target", function(n) { return n.target; })
+        .classed("node--source", function(n) { return n.source; });
 
 }
 
-function mouseouted(d) {
+Viz.mouseouted = function(d) {
   Viz.link
       .classed("link--target", false)
       .classed("link--source", false);
