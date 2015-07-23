@@ -39,7 +39,7 @@
   padding-bottom: 2em;
 }
 
-.referencesMap, .characteristicsMap {
+.ReferencesMap, .CharacteristicsMap {
   display: none;
 }
 
@@ -79,6 +79,11 @@
 
 .attribute_holder .name .node-attribute, .attribute_holder .authors .node-attribute {
   background-color: #2ca02c;
+}
+
+.attribute_holder .citation .node-attribute {
+  background-color: #ffffff;
+  color: #333;
 }
 
 .attribute_holder .department .node-attribute {
