@@ -9,6 +9,10 @@ Viz.setup = function(container, data_people, data_references, characteristics_re
   //add the right column
   Viz.sidebar = $('#right-sidebar');
 
+  //hide the checkboxes for the characteristics set
+  $('#similarity-types .references').hide();
+  $('#similarity-types .people').hide();
+
   //set the graph type
   Viz.data_type = 'PeopleMap';
 
@@ -66,18 +70,29 @@ Viz.setup_interactions = function() {
   $('#similarity-types input').change(function() {
 
     //If they uncheck all the boxes, check the first one...
-    if ($('#similarity-types input[type="checkbox"]:not(:checked)').length >= $('#similarity-types input[type="checkbox"]').length) {
+    if ($('#similarity-types input[type="checkbox"]:not(:checked)').length >= $('#similarity-types input[type="checkbox"]:visible').length) {
       $('#similarity-types input[type="checkbox"]:first').prop('checked',true);
     }
     Viz.load_data();
   })
 
   $('#map-types').change(function() {
+    
     Viz.clear_sidebar();
     Viz.data_type = $('#map-types option:selected').attr('data-map-type');
+
+    if (Viz.data_type == 'CharacteristicsMap') {
+      $('#similarity-types label').hide().children('input').prop('checked', false);
+      $('#similarity-types .people, #similarity-types .references').show().children('input').prop('checked', true);
+    } else {
+      $('#similarity-types label').show().children('input').prop('checked', true);
+      $('#similarity-types .people, #similarity-types .references').hide().children('input').prop('checked', false);
+    }
+    
     $('#right-sidebar .attribute_holder').hide();
     $('#right-sidebar .' + Viz.data_type).show();
     Viz.load_data();
+
   });
 
 }//setup_interactions
@@ -180,7 +195,12 @@ Viz.load_data = function(data_type) {
 
 Viz.load_viz = function() {
 
+    console.log("loading viz");
+
     Viz.filteredLinks = generate_links(Viz.originalNodes, "objects");
+
+    console.log("Filtered Links: ");
+    console.log(Viz.filteredLinks);
 
     //Make a list of all the nodes that are currently active...
     Viz.active_sources = Viz.filteredLinks.map(function(n) {
@@ -206,6 +226,8 @@ Viz.load_viz = function() {
     Viz.node_names = Viz.active_nodes;
 
     //generate communities
+
+    console.log(Viz.active_nodes);
 
     var community = jLouvain().nodes(Viz.active_nodes).edges(Viz.communityLinks);
 
@@ -235,7 +257,6 @@ Viz.load_viz = function() {
           for(var i=0; i<Viz.originalNodes.length; i++) {
             if (Viz.originalNodes[i]['relative_url'] ==  index) {
               var tmp_object = Viz.originalNodes[i];
-              //console.log(tmp_object);
             }
           }
 
@@ -347,8 +368,7 @@ function mouseclick(d) {
           var hide = " collapsed";
         }
 
-        console.log(attribute_holder[d[key][i].id]);
-
+        //Hopefully this turns into something other than undefined once the json file gets updated. 
         tmp_fields += "<a class='node-attribute" + hide + "'>" + attribute_holder[d[key][i].id].citationShort + "</a>";
       }
       Viz.sidebar.find('.' + key).append("<p>" + tmp_fields + "</p>");
@@ -541,7 +561,7 @@ active_similarity_types = function() {
 };
 
 similarity_types = function() {
-    return ['fields', 'methods', 'theories', 'venues', 'references'];
+    return ['fields', 'methods', 'theories', 'venues', 'references','people'];
 };
 
 link_index = function(d) {
