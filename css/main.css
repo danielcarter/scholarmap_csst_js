@@ -140,6 +140,10 @@
 
 /***VIZ***/
 
+#visualization {
+  margin-top: -30px;
+}
+
 #viz-loading {
   display: block;
   height: 100%;
