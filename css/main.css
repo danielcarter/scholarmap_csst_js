@@ -1,10 +1,42 @@
 
 
+/***TOP CONTROLS***/
+#similarity-types {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+#node-search {
+  width: 80%;
+  margin: 0px auto;
+  display: block;
+}
+
+.top-controls .form-group {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.top-controls .center {
+  text-align: center;
+}
+
+.form-group.search {
+  border-left: 1px solid #ccc;
+}
+
+.form-group.map-type {
+  border-right: 1px solid #ccc;
+}
+
+
 /***SIDEBAR***/
 #right-sidebar {
-  border-left: 1px solid #ededed;
-  margin-top: 100px;
+  background-color: #fff;
+  margin-top: 50px;
   font-size: .9em;
+  padding-top: 2em;
+  padding-bottom: 2em;
 }
 
 .referencesMap, .characteristicsMap {
@@ -39,6 +71,10 @@
 
 .node-attribute.collapsed.not-hidden {
   display: inline-block;
+}
+
+.attribute_holder div {
+  min-height: 80px;
 }
 
 .attribute_holder .name .node-attribute, .attribute_holder .authors .node-attribute {
@@ -82,13 +118,20 @@
 }
 
 
-
-
-
-.node-attribute.expand {
-}
-
 /***VIZ***/
+
+#viz-loading {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background-image: url(../img/loading.gif);
+  background-repeat:no-repeat;
+  background-position: center center;
+  background-color: #f3f3f3;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
 
 .node {
   font: 300 9px Tahoma;

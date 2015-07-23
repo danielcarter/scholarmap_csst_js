@@ -33,6 +33,8 @@ Viz.setup = function(container, data_people, data_references, characteristics_re
       .radius(function(d) { return d.y; })
       .angle(function(d) { return d.x / 180 * Math.PI; });
 
+  $(container).append('<div id="viz-loading"></div>');
+
   Viz.svg = d3.select(container).append("svg")
       .attr("class","viz")
       .attr("width", Viz.diameter)
@@ -73,9 +75,11 @@ Viz.setup_interactions = function() {
 
   $('#similarity-types input').change(function() {
 
+    $('#viz-loading').show();
+
     //If they uncheck all the boxes, check the first one...
     if ($('#similarity-types input[type="checkbox"]:not(:checked)').length >= $('#similarity-types input[type="checkbox"]:visible').length) {
-      $('#similarity-types input[type="checkbox"]:first').prop('checked',true);
+      $('#similarity-types input[type="checkbox"]:visible:first').prop('checked',true);
     }
 
     Viz.load_data();
@@ -83,6 +87,8 @@ Viz.setup_interactions = function() {
   })
 
   $('#map-types').change(function() {
+    
+    $('#viz-loading').show();
     
     Viz.clear_sidebar();
     Viz.data_type = $('#map-types option:selected').attr('data-map-type');
@@ -290,6 +296,8 @@ Viz.clear_sidebar = function() {
 }
 
 Viz.update = function() {
+
+  $('#viz-loading').fadeOut('slow');
 
   //kill everything? ... yes, kill everything
   Viz.link = Viz.svg.selectAll(".link").remove();
