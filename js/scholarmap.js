@@ -464,7 +464,7 @@ Viz.mouseclick = function(d) {
     if (people_name || people_position || people_institution) {
       people_string = "<h4>";
       if (people_name) {
-        people_string += people_name;
+        people_string += "<a href='" + main_link + "'>" + people_name + "</a>";
       }
       if (people_position || people_institution) {
         people_string += "<br /><span>"
