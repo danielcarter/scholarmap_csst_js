@@ -8,7 +8,7 @@ Viz.setup = function(container, data_people, data_references, data_characteristi
   Viz.data_people = data_people;
   Viz.data_references = data_references;
   Viz.data_characteristics = data_characteristics;
-
+  console.log(Viz.data_people)
   //set the graph type
   //Viz.data_type = 'PeopleMap';
   Viz.data_type = $('#map-types option:selected').attr('data-map-type');
@@ -133,7 +133,10 @@ Viz.load_data = function(data_type) {
   if (Viz.data_type == "PeopleMap") {
 
     //load people data
-    d3.json(Viz.data_people==null?"http://localhost:8080/ScholarMapClean/api/v1/people/graphs/force-directed":Viz.data_people, function(error, data) {
+    //
+
+    d3.json(Viz.data_people==null?"/ScholarMap/api/v1/people/graphs/force-directed":Viz.data_people, function(error, data) {
+      console.log("I have retrieved data");
 
       Viz.attributes = data.attributes;
       Viz.fields = Viz.attributes.fields;
@@ -159,7 +162,7 @@ Viz.load_data = function(data_type) {
   else if (Viz.data_type == "ReferencesMap") {
 
     //load ref data
-    d3.json(Viz.data_references==null?"http://localhost:8080/ScholarMapClean/api/v1/references/graphs/force-directed":Viz.data_references, function(error, data) {
+    d3.json(Viz.data_references==null?"/ScholarMap/api/v1/references/graphs/force-directed":Viz.data_references, function(error, data) {
 
       Viz.attributes = data.attributes;
       Viz.fields = Viz.attributes.fields;
@@ -185,7 +188,7 @@ Viz.load_data = function(data_type) {
   else if (Viz.data_type == "CharacteristicsMap") {
 
     //load ref data
-    d3.json(Viz.data_references==null?"http://localhost:8080/ScholarMapClean/api/v1/characteristics/graphs/force-directed":Viz.data_characteristics, function(error, data) {
+    d3.json(Viz.data_references==null?"/ScholarMap/api/v1/characteristics/graphs/force-directed":Viz.data_characteristics, function(error, data) {
 
       Viz.attributes = data.attributes;
       Viz.fields = Viz.attributes.fields;
@@ -221,81 +224,83 @@ Viz.load_viz = function() {
 
     Viz.filteredLinks = Viz.generate_links(Viz.originalNodes, "objects");
 
-    //Make a list of all the nodes that are currently active...
-    Viz.active_sources = Viz.filteredLinks.map(function(n) {
-      return n.source.relative_url;
-    })
+    if (Viz.filteredLinks.length >0) {
 
-    Viz.active_targets = Viz.filteredLinks.map(function(n) {
-      return n.target.relative_url;
-    })
+        //Make a list of all the nodes that are currently active...
+        Viz.active_sources = Viz.filteredLinks.map(function (n) {
+            return n.source.relative_url;
+        })
 
-    Viz.active_nodes = Viz.active_targets.concat(Viz.active_sources);
-    Viz.active_nodes = arrayUnique(Viz.active_nodes);
+        Viz.active_targets = Viz.filteredLinks.map(function (n) {
+            return n.target.relative_url;
+        })
 
-    //Filter original nodes to only include those used in the filtered links
+        Viz.active_nodes = Viz.active_targets.concat(Viz.active_sources);
+        Viz.active_nodes = arrayUnique(Viz.active_nodes);
 
-    Viz.filteredNodes = Viz.originalNodes.filter(function(d) {
-      return Viz.active_nodes.indexOf(d.relative_url) > -1
-    })
+        //Filter original nodes to only include those used in the filtered links
 
-    Viz.communityLinks = Viz.generate_links(Viz.originalNodes, "ids"); 
+        Viz.filteredNodes = Viz.originalNodes.filter(function (d) {
+            return Viz.active_nodes.indexOf(d.relative_url) > -1
+        })
 
-    //make a list of node names to use in the community detection algorithm
-    Viz.node_names = Viz.active_nodes;
+        Viz.communityLinks = Viz.generate_links(Viz.originalNodes, "ids");
 
-    //generate communities
+        //make a list of node names to use in the community detection algorithm
+        Viz.node_names = Viz.active_nodes;
 
-    var community = jLouvain().nodes(Viz.active_nodes).edges(Viz.communityLinks);
+        //generate communities
 
-    Viz.community = community();
+        var community = jLouvain().nodes(Viz.active_nodes).edges(Viz.communityLinks);
 
-    //get the groups from the community
-    var groups = $.map(Viz.community, function(value, index) {
-      return [value];
-    });
+        Viz.community = community();
+        console.log(Viz.community);
+        //get the groups from the community
+        var groups = $.map(Viz.community, function (value, index) {
+            return [value];
+        });
 
-    groups = arrayUnique(groups);
+        groups = arrayUnique(groups);
 
-    //add new nodes for each group with children...
-    //this just uses the relative_url ... will see if that works...
-    var tmp_counter = 0;
-    $.each(groups, function(d) {
-      tmp_children = [];
-      var tmp_group = d;
-      
-      //foreach realtive url
-      $.each(Viz.community, function(index, value) {
+        //add new nodes for each group with children...
+        //this just uses the relative_url ... will see if that works...
+        var tmp_counter = 0;
+        $.each(groups, function (d) {
+            tmp_children = [];
+            var tmp_group = d;
 
-        //if that node is in the current group...
-        if (value == tmp_group) {
+            //foreach realtive url
+            $.each(Viz.community, function (index, value) {
 
-          //loop through the existing objects and find the correct node...
-          for(var i=0; i<Viz.originalNodes.length; i++) {
-            if (Viz.originalNodes[i]['relative_url'] ==  index) {
-              var tmp_object = Viz.originalNodes[i];
-            }
-          }
+                //if that node is in the current group...
+                if (value == tmp_group) {
 
-          tmp_children.push(tmp_object);
-        }
-      });
+                    //loop through the existing objects and find the correct node...
+                    for (var i = 0; i < Viz.originalNodes.length; i++) {
+                        if (Viz.originalNodes[i]['relative_url'] == index) {
+                            var tmp_object = Viz.originalNodes[i];
+                        }
+                    }
 
-      tmp_node = {
-        name: d,
-        relative_url: "group_" + d,
-        display: false,
-        children: tmp_children
-      };
+                    tmp_children.push(tmp_object);
+                }
+            });
 
-      Viz.groupedNodes.children[tmp_counter] = tmp_node;
-      tmp_counter++;
+            tmp_node = {
+                name: d,
+                relative_url: "group_" + d,
+                display: false,
+                children: tmp_children
+            };
 
-    });
+            Viz.groupedNodes.children[tmp_counter] = tmp_node;
+            tmp_counter++;
 
-    //Generate the clustered nodes
-    Viz.clusteredNodes = Viz.cluster.nodes(Viz.groupedNodes);
+        });
 
+        //Generate the clustered nodes
+        Viz.clusteredNodes = Viz.cluster.nodes(Viz.groupedNodes);
+    }
     //Update the viz
     Viz.update();
 
@@ -309,57 +314,66 @@ Viz.clear_sidebar = function() {
 Viz.update = function() {
 
   $('#viz-loading').fadeOut('slow');
+  if (Viz.filteredLinks.length >0) {
+      //kill everything? ... yes, kill everything
+      Viz.link = Viz.svg.selectAll(".link").remove();
+      Viz.node = Viz.svg.selectAll(".node").remove();
 
-  //kill everything? ... yes, kill everything
-  Viz.link = Viz.svg.selectAll(".link").remove();
-  Viz.node = Viz.svg.selectAll(".node").remove();
+      Viz.link = Viz.svg.append("g").selectAll(".link"),
+          Viz.node = Viz.svg.append("g").selectAll(".node");
 
-  Viz.link = Viz.svg.append("g").selectAll(".link"),
-  Viz.node = Viz.svg.append("g").selectAll(".node");
+      Viz.link = Viz.link
+          .data(Viz.bundle(Viz.filteredLinks));
 
-  Viz.link = Viz.link
-      .data(Viz.bundle(Viz.filteredLinks));
+      //console.log(Viz.filteredLinks);
 
-  //console.log(Viz.filteredLinks);
+      Viz.link.enter()
+          .append("path")
+          //.each(function(d) { d.source = d[0], d.target = d[d.length - 1]; })
+          .attr("class", "link")
+          .attr("d", Viz.line);
 
-  Viz.link.enter()
-    .append("path")
-      //.each(function(d) { d.source = d[0], d.target = d[d.length - 1]; })
-      .attr("class", "link")
-      .attr("d", Viz.line);
+      Viz.link.exit().remove();
 
-  Viz.link.exit().remove();
-
-  //Group nodes and root get display: false
-  Viz.node = Viz.node
-      .data(Viz.clusteredNodes.filter( function(n) { 
-        return n.display !== false; } 
-      ));
+      //Group nodes and root get display: false
+      Viz.node = Viz.node
+          .data(Viz.clusteredNodes.filter(function (n) {
+                  return n.display !== false;
+              }
+          ));
 
       //This is the optional function that you add to the data function to bind the data by a custom attribute ... which is what you need to do to animate things....
 
       //, function(d, i) { return d.relative_url; }
-    
-  Viz.node.enter().append("text")
-      .attr("class", "node")
-      .attr("fill", function(d) {
-        return Viz.color(d.parent.name);
-      })
-      .attr("dy", ".31em")
-      .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
-      .style("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
-      .text(function(d) { 
-        if (Viz.data_type == 'PeopleMap' || Viz.data_type == 'CharacteristicsMap') {
-          return d.name.trunc(50);   
-        } else if (Viz.data_type == 'ReferencesMap') {
-          return d.citationShort.trunc(50);   
-        }
-      })
-      .on("click", Viz.mouseclick)
-      .on("mouseover", Viz.mouseovered)
-      .on("mouseout", Viz.mouseouted);
 
-  Viz.node.exit().remove();
+      Viz.node.enter().append("text")
+          .attr("class", "node")
+          .attr("fill", function (d) {
+              return Viz.color(d.parent.name);
+          })
+          .attr("dy", ".31em")
+          .attr("transform", function (d) {
+              return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)");
+          })
+          .style("text-anchor", function (d) {
+              return d.x < 180 ? "start" : "end";
+          })
+          .text(function (d) {
+              if (Viz.data_type == 'PeopleMap' || Viz.data_type == 'CharacteristicsMap') {
+                  return d.name.trunc(50);
+              } else if (Viz.data_type == 'ReferencesMap') {
+                  return d.citationShort.trunc(50);
+              }
+          })
+          .on("click", Viz.mouseclick)
+          .on("mouseover", Viz.mouseovered)
+          .on("mouseout", Viz.mouseouted);
+
+      Viz.node.exit().remove();
+  } else {
+      $('svg').remove();
+      $(Viz.container).append("<div id='nolinks' class='jumbotron'><p>No Links To Display</p></div>");
+  }
 
 } //update
 
