@@ -11,7 +11,7 @@ Viz.setup = function(container, data_people, data_references, data_characteristi
   console.log(Viz.data_people)
   //set the graph type
   //Viz.data_type = 'PeopleMap';
-  Viz.data_type = $('#map-types option:selected').attr('data-map-type');
+
 
   Viz.diameter = $(container).width(),
   Viz.radius = Viz.diameter / 2,
@@ -48,7 +48,8 @@ Viz.setup = function(container, data_people, data_references, data_characteristi
   Viz.similarity_types = similarity_types();
   Viz.setup_similarity_types();
   Viz.setup_interactions();
-  Viz.load_data();
+  //Viz.load_data();
+    update($('#map-types option:selected').attr('data-map-type'));
   
 } //setup
 
@@ -65,6 +66,29 @@ Viz.setup_elements = function(container) {
 
 }//setup_elements
 
+
+
+function update(datatype) {
+
+    $('#viz-loading').show();
+
+    Viz.clear_sidebar(); // removes all <p>s
+
+    Viz.data_type = $('#map-types option:selected').attr('data-map-type');
+
+    if (Viz.data_type == 'CharacteristicsMap') {
+        $('#similarity-types label').hide().children('input').prop('checked', false);
+        $('#similarity-types .people, #similarity-types .references').show().children('input').prop('checked', true);
+    } else {
+        $('#similarity-types label').show().children('input').prop('checked', true);
+        $('#similarity-types .people, #similarity-types .references').hide().children('input').prop('checked', false);
+    }
+
+    $('#right-sidebar .attribute_holder').hide();
+    $('#right-sidebar .' + Viz.data_type).show();
+    Viz.load_data();
+
+}
 
 Viz.setup_interactions = function() {
 
@@ -95,25 +119,13 @@ Viz.setup_interactions = function() {
   
   })
 
+
+
   $('#map-types').change(function() {
-    
-    $('#viz-loading').show();
-    
-    Viz.clear_sidebar(); // removes all <p>s
 
-    Viz.data_type = $('#map-types option:selected').attr('data-map-type');
-
-    if (Viz.data_type == 'CharacteristicsMap') {
-      $('#similarity-types label').hide().children('input').prop('checked', false);
-      $('#similarity-types .people, #similarity-types .references').show().children('input').prop('checked', true);
-    } else {
-      $('#similarity-types label').show().children('input').prop('checked', true);
-      $('#similarity-types .people, #similarity-types .references').hide().children('input').prop('checked', false);
-    }
+      update($('#map-types option:selected').attr('data-map-type'));
     
-    $('#right-sidebar .attribute_holder').hide();
-    $('#right-sidebar .' + Viz.data_type).show();
-    Viz.load_data();
+
 
   });
 
@@ -196,7 +208,13 @@ Viz.load_data = function(data_type) {
       Viz.references = Viz.attributes.references;
       Viz.theories = Viz.attributes.theories;
       Viz.venues = Viz.attributes.venues;
-      Viz.people = Viz.attributes.people;
+      Viz.people = {};
+
+      Viz.attributes.people.forEach(function (el, i, arr) {
+        Viz.people[el.id] = el;
+      });
+
+
 
 
       Viz.originalNodes = data.nodes;
@@ -378,7 +396,7 @@ Viz.update = function() {
 } //update
 
 Viz.mouseclick = function(d) {
-
+  console.log(d);
   Viz.clear_sidebar();
 
   var main_link = d.relative_url;
