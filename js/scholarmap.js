@@ -416,13 +416,13 @@ Viz.mouseclick = function (d) {
         }
 
         //name for characteristics
-        if (key === "name" && !_.has(d, 'institution')) {
+        if (key === "name" && !_.has(d, 'department')) {
             if (d[key] != "") {
                 Viz.sidebar.find('.' + key).append("<p><a class='node-attribute' href='" + main_link + "'>" + d[key] + "</a></p>");
             }
         }
         //name for people
-        else if (key === "name" && _.has(d, 'institution')) {
+        else if (key === "name" && _.has(d, 'department')) {
             if (d[key] != "") {
                 people_name = d[key];
             }
