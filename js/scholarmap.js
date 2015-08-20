@@ -116,7 +116,8 @@ Viz.setup_interactions = function () {
         $('#viz-loading').show();
 
         //If they uncheck all the boxes, check the first one...
-        if ($('#similarity-types input[type="checkbox"]:not(:checked)').length >= $('#similarity-types input[type="checkbox"]:visible').length) {
+        if ($('#similarity-types input[type="checkbox"]:visible:not(:checked)').length >= $('#similarity-types input[type="checkbox"]:visible').length) {
+
             $('#similarity-types input[type="checkbox"]:visible:first').prop('checked', true);
         }
 
